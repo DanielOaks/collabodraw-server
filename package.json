@@ -1,0 +1,22 @@
+{
+  "name": "collabodraw-server",
+  "version": "0.0.1",
+  "description": "Server for the Collabodraw drawing app!",
+  "main": "src/app.ts",
+  "repository": "https://github.com/DanielOaks/collabodraw-server",
+  "author": "Daniel Oaks <daniel@danieloaks.net>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./bin/app.js",
+    "dev": "ts-node ./src/app.ts"
+  },
+  "dependencies": {
+    "@types/node": "^20.8.2",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
+  }
+}

@@ -8,22 +8,24 @@ Subprotocol name: `user.cd.pixienop.net`
 
 ```mermaid
 flowchart LR
-    Negotiation(Negotiation) --->|as User| Login(Login)
-    Login --> BackAndForth(Regular comms)
-    Negotiation -->|as Guest| Guest(No login)
-    Guest --> BackAndForth
-    BackAndForth --> BackAndForth
+    Negotiation(Negotiation) ---> Login(Login)
+    Login -->|Failed| Login
+    Login -->|as Guest| BackAndForth(Regular events + commands)
+    Login -->|as User| BackAndForth
 ```
 
 ## Negotiation
 
 In this phase, the server and client confirm that they're speaking the same language and pass any relevant info to each other.
 
-1. Server sends its details to the client.
-2. Client sends its details to the server.
-3. Client and server could do extra things here if they want to enable new features or more. Unknown messages are responded to with the **unknown negotiation message response**.
-4. Client and server send each other the `end negotiation` message.
-5. Once both the client and server have confirmed negotiation is ended, continue.
+1. Details are sent when the server/client opens the connection:
+    - Server sends its details to the client. Client ignores unknown keys.
+    - Client sends its details to the server. Server ignores unknown keys.
+2. Client and server could do extra things here if they want to enable new features or more.
+    - This is where clients and servers can define custom protocol extensions.
+    - Unknown messages are responded to with the **unknown negotiation message response**.
+3. Client and server send each other the `end negotiation` message.
+4. Once both the client and server have confirmed negotiation is ended, move to the Login phase.
 
 Server details:
 ```json

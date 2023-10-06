@@ -8,7 +8,20 @@ Subprotocol name: `user.cd.pixienop.net`
 
 ```mermaid
 flowchart LR
-Negotiation(Negotiation) ---> Login(Login)
-Login --> Misc(Misc)
-Misc --> Misc
+    Negotiation(Negotiation) --->|as User| Login(Login)
+    Login --> BackAndForth(Communication<br>---<br>incoming events<br>outgoing commands)
+    Negotiation -->|as Guest| BackAndForth
+    BackAndForth --> BackAndForth
 ```
+
+## Negotiation
+
+...
+
+## Login
+
+...
+
+## Communication
+
+...

@@ -19,7 +19,7 @@ flowchart LR
 
 Communication is primarily done with JSON messages containing objects.
 
-The `verb` represents 
+The `verb` defines what the message/command means. If the verb starts with `"end "`, it is 
 
 ## Login
 

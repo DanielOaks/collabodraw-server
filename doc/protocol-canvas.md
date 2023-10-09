@@ -26,7 +26,7 @@ The `verb` represents
 In this phase, the client either tries to login or continues as a guest.
 
 Client login request:
-```json
+```jsonc
 {
     "verb": "login",
     "user": "guest or real_username",
@@ -35,13 +35,13 @@ Client login request:
 ```
 
 Possible server responses:
-```json
+```jsonc
 {
     "verb": "logged in",
     "user": "guest or real_username"
 }
 ```
-```json
+```jsonc
 {
     "verb": "login failed",
     "message": "Here's the human-readable reason why login failed, and should be displayed to the user.",
@@ -64,7 +64,7 @@ In this phase, the server and client confirm that they're speaking the same lang
 4. Once both the client and server have confirmed negotiation is ended, move to the regular communication phase.
 
 Server details:
-```json
+```jsonc
 {
     "verb": "details",
 
@@ -74,7 +74,7 @@ Server details:
 ```
 
 Client details:
-```json
+```jsonc
 {
     "verb": "details",
 
@@ -90,7 +90,7 @@ Client details:
 ```
 
 Unknown negotiation message response:
-```json
+```jsonc
 {
     "verb": "unknown",
     "content": { ... original message ... }
@@ -98,7 +98,7 @@ Unknown negotiation message response:
 ```
 
 End negotiation message:
-```json
+```jsonc
 {
     "verb": "end negotiation"
 }
@@ -109,7 +109,7 @@ End negotiation message:
 Before anything else is done, the server sync any information that the user requested in their `details` message.
 
 This is done with the following series of messages:
-```json
+```jsonc
 {
     "verb": "initial state"
 }
@@ -117,7 +117,7 @@ This is done with the following series of messages:
 ```
 all of the initial state messages are sent here
 ```
-```json
+```jsonc
 {
     "verb": "end initial state"
 }
@@ -132,14 +132,14 @@ In this phase, the server sends `events` and the client sends `commands`. The cl
 Syncing the user list is typically done at the start of a connection, and gives the client the current list of users.
 
 The client sends this command to request a sync of the user list:
-```json
+```jsonc
 {
     "verb": "sync users"
 }
 ```
 
 The server responds with this message:
-```json
+```jsonc
 {
     "verb": "sync users",
     "users": [
@@ -166,14 +166,14 @@ Syncing the canvas is typically done at the start of a connection, and gives the
 The `sync canvas` message from the server halts delivery of any state changes that haven't yet been sent, and indicates to the client that any prior canvas/undo stack information should be thrown away.
 
 The client sends this command to request a sync of the canvas data:
-```json
+```jsonc
 {
     "verb": "sync canvas"
 }
 ```
 
 The server responds with this set of messages, in this order:
-```json
+```jsonc
 {
     "verb": "sync canvas",
     "name": "Pretty canvas name here",
@@ -200,7 +200,7 @@ one binary frame for each layer, bottom to top, containing a PNG with the layer 
 ```
 zero or more changes for each layer, representing the current undo stack
 ```
-```json
+```jsonc
 {
     "verb": "end sync canvas"
 }

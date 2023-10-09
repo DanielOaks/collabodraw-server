@@ -11,8 +11,15 @@ flowchart LR
     Login(Login) -->|as Guest| Negotiation(Negotiation)
     Login -->|as User| Negotiation
     Login -->|Failed| Login
-    Negotiation --> BackAndForth(Regular events + commands)
+    Negotiation --> SyncState(Syncing initial state)
+    SyncState --> BackAndForth(Regular events + commands)
 ```
+
+## Message details
+
+Communication is primarily done with JSON messages containing objects.
+
+The `verb` represents 
 
 ## Login
 
@@ -22,8 +29,8 @@ Client login request:
 ```json
 {
     "verb": "login",
-    "user": "guest" | <real username>,
-    <some form of credentials>  // if not a guest
+    "user": "guest or real_username",
+    "token": "..."  // if not a guest
 }
 ```
 
@@ -31,7 +38,7 @@ Possible server responses:
 ```json
 {
     "verb": "logged in",
-    "user": "guest" | <real username>
+    "user": "guest or real_username"
 }
 ```
 ```json
@@ -60,6 +67,9 @@ Server details:
 ```json
 {
     "verb": "details",
+
+    // how many actions the server stores, and expects clients to store, on the undo stack for each layer
+    "undo_stack_length": 30,
 }
 ```
 
@@ -67,6 +77,15 @@ Client details:
 ```json
 {
     "verb": "details",
+
+    // what the server should send in the initial sync
+    "sync": [
+        // sends the `sync users` response
+        "users",
+
+        // sends the `sync layers` response
+        "layers",
+    ]
 }
 ```
 
@@ -74,7 +93,7 @@ Unknown negotiation message response:
 ```json
 {
     "verb": "unknown",
-    "content": ... original message ...
+    "content": { ... original message ... }
 }
 ```
 
@@ -85,9 +104,60 @@ End negotiation message:
 }
 ```
 
+## Syncing initial state
+
+Before anything else is done, the server sync any information that the user requested in their `details` message.
+
+This is done with the following series of messages:
+```json
+{
+    "verb": "initial state"
+}
+```
+```
+all of the initial state messages are sent here
+```
+```json
+{
+    "verb": "end initial state"
+}
+```
+
 ## Regular communication
 
 In this phase, the server sends `events` and the client sends `commands`. The client doesn't presume any of their `commands` are accepted, and instead waits for incoming `events` to confirm that they were.
+
+### Syncing the user list
+
+Syncing the user list is typically done at the start of a connection, and gives the client the current list of users.
+
+The client sends this command to request a sync of the user list:
+```json
+{
+    "verb": "sync users"
+}
+```
+
+The server responds with this message:
+```json
+{
+    "verb": "sync users",
+    "users": [
+        {
+            // if this is true, this object contains the user's own info.
+            // otherwise this should be omitted
+            "yourself": true,
+
+            "id": "username or unique guest id",
+            "name": "Display name here",
+            "owner": true or false,
+
+            "color": "#rrggbb",
+            "avatar": "https://...",
+        },
+    ],
+}
+```
 
 ### Syncing the canvas
 
@@ -106,21 +176,34 @@ The server responds with this set of messages, in this order:
 ```json
 {
     "verb": "sync canvas",
+    "name": "Pretty canvas name here",
     "layers": [
-        ...,
+        // one entry for each layer, bottom to top
+        {
+            "id": "...",
+            "name": "Display name here",
+
+            // notes:
+            //  'id' may be a user not currently in the canvas
+            //  'null' layers are unowned and can be taken over by anyone
+            "owner": "id" or null,
+
+            "blending_mode": "...",
+            "clips_layer_below": true or false,
+        },
     ],
-    ... what to put here ...
 }
 ```
 ```
-one binary frame for each layer, containing a PNG with the layer data
+one binary frame for each layer, bottom to top, containing a PNG with the layer data
 ```
 ```
-zero or more changes for each layer, representing the current undo stack on each
+zero or more changes for each layer, representing the current undo stack
 ```
 ```json
 {
-    "verb": "end",
-    "state": "sync canvas"
+    "verb": "end sync canvas"
 }
 ```
+
+In other news the server sends the metadata for all layers, then the frame data for all layers, and finally the current undo stack.

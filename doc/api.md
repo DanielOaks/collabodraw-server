@@ -47,7 +47,7 @@ Creates a new user account.
 
 ```jsonc
 {
-    ...
+  ...
 }
 ```
 
@@ -83,7 +83,7 @@ Creates a new canvas.
 
 ```jsonc
 {
-    ...
+  ...
 }
 ```
 
